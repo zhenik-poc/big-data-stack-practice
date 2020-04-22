@@ -56,3 +56,16 @@ download-hive:
 	wget https://apache.uib.no/hive/hive-${hive_version}/apache-hive-${hive_version}-bin.tar.gz
 	tar -xzvf apache-hive-${hive_version}-bin.tar.gz
 	rm apache-hive-${hive_version}-bin.tar.gz
+local:	
+	cp -f ./config/hdfs-site.xml ${hadoop_home}/etc/hadoop/hdfs-site.xml
+add-s3-hive-lib:
+	curl -L https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-hdfs/3.2.1/hadoop-hdfs-3.2.1.jar \
+		-o ${hive_home}/lib/hadoop-hdfs-3.2.1.jar
+	curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.11.765/aws-java-sdk-1.11.765.jar \
+		-o ${hive_home}/lib/aws-java-sdk-1.11.765.jar
+dirs:
+	${hadoop_home}/bin/hadoop fs -mkdir       /tmp
+	${hadoop_home}/bin/hadoop fs -mkdir       /user/hive/warehouse
+	${hadoop_home}/bin/hadoop fs -chmod g+w   /tmp
+	${hadoop_home}/bin/hadoop fs -chmod g+w   /user/hive/warehouse
+

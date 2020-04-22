@@ -7,6 +7,12 @@ hive_home 			= $$PWD/apache-hive-$(hive_version)-bin
 hadoop_home 		= $$PWD/hadoop-$(hadoop_version)
 
 
+clean: clean-tmp
+	rm -rf ${hadoop_home}
+	rm -rf ${hive_home}
+clean-tmp:
+	rm -rf /tmp/hadoop
+	rm -rf /tmp/hadoop-${USER}
 exports:
 	source .env
 # Hadoop
@@ -20,9 +26,9 @@ hadoop-standalone-operation:
 	cp ${hadoop_home}/etc/hadoop/*.xml input
 	${hadoop_home}/bin/hadoop jar ${hadoop_home}/share/hadoop/mapreduce/hadoop-mapreduce-examples-${hadoop_version}.jar grep input output 'dfs[a-z.]+'
 	cat output/*
-hadoop-configure:
-	#Set JAVA_HOME explicitly
+hadoop-conf-java:
 	sed -i "s#.*export JAVA_HOME.*#export JAVA_HOME=${JAVA_HOME}#g" ${hadoop_home}/etc/hadoop/hadoop-env.sh
+hadoop-conf-other:
 	sed -i '/<\/configuration>/i <property><name>fs.defaultFS</name><value>hdfs://0.0.0.0:9000</value></property>' ${hadoop_home}/etc/hadoop/core-site.xml
 	sed -i '/<\/configuration>/i <property><name>dfs.replication</name><value>1</value></property>' ${hadoop_home}/etc/hadoop/hdfs-site.xml
 
@@ -52,20 +58,47 @@ hadoop-test:
 	cat output/*
 
 # Hive
-download-hive:
+hive-download:
 	wget https://apache.uib.no/hive/hive-${hive_version}/apache-hive-${hive_version}-bin.tar.gz
 	tar -xzvf apache-hive-${hive_version}-bin.tar.gz
 	rm apache-hive-${hive_version}-bin.tar.gz
-local:	
-	cp -f ./config/hdfs-site.xml ${hadoop_home}/etc/hadoop/hdfs-site.xml
-add-s3-hive-lib:
+hive-hadoop-conf:	
+	cp -f ./config/hadoop/hdfs-site.xml ${hadoop_home}/etc/hadoop/hdfs-site.xml
+	cp -f ./config/hadoop/core-site.xml ${hadoop_home}/etc/hadoop/core-site.xml
+	rm -f ${hive_home}/lib/guava-19.0.jar && \
+    	cp ${hadoop_home}/share/hadoop/common/lib/guava-27.0-jre.jar ${hive_home}/lib/
+hive-add-s3-lib:
 	curl -L https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-hdfs/3.2.1/hadoop-hdfs-3.2.1.jar \
 		-o ${hive_home}/lib/hadoop-hdfs-3.2.1.jar
 	curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/1.11.765/aws-java-sdk-1.11.765.jar \
 		-o ${hive_home}/lib/aws-java-sdk-1.11.765.jar
-dirs:
-	${hadoop_home}/bin/hadoop fs -mkdir       /tmp
-	${hadoop_home}/bin/hadoop fs -mkdir       /user/hive/warehouse
-	${hadoop_home}/bin/hadoop fs -chmod g+w   /tmp
-	${hadoop_home}/bin/hadoop fs -chmod g+w   /user/hive/warehouse
+hive-dirs:
+	${hadoop_home}/bin/hdfs dfs -mkdir       /tmp
+	${hadoop_home}/bin/hdfs dfs -mkdir       /user
+	${hadoop_home}/bin/hdfs dfs -mkdir       /user/hive
+	${hadoop_home}/bin/hdfs dfs -mkdir       /user/hive/warehouse
+	${hadoop_home}/bin/hdfs dfs -chmod g+w   /tmp
+	${hadoop_home}/bin/hdfs dfs -chmod g+w   /user/hive/warehouse
+hive-schema-init:
+	${hive_home}/bin/schematool -dbType derby -initSchema
+hive-start:
+	${hive_home}/bin/hiveserver2
+hive-metastore-start:
+	${hive_home}/bin/hiveserver2 --service metastore
 
+
+# 1
+download: hadoop-download hive-download
+# 2 conf before start hadoop
+conf-pre: hadoop-conf-java hive-hadoop-conf hive-add-s3-lib
+# 3 start
+init: format start
+# 4 conf at hadoop runtime
+conf-post: hive-dirs hive-schema-init
+# 5 start hive
+
+
+
+# 4 
+test: 
+	${hive_home}/bin/schematool -dbType derby -initSchema

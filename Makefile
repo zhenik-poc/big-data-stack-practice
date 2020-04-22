@@ -85,6 +85,8 @@ hive-start:
 	${hive_home}/bin/hiveserver2
 hive-metastore-start:
 	${hive_home}/bin/hiveserver2 --service metastore
+hive-metastore-start-test-mode:
+	${hive_home}/bin/beeline -u jdbc:hive2://
 
 
 # 1
@@ -95,10 +97,8 @@ conf-pre: hadoop-conf-java hive-hadoop-conf hive-add-s3-lib
 init: format start
 # 4 conf at hadoop runtime
 conf-post: hive-dirs hive-schema-init
-# 5 start hive
+# 4 start hive
 
-
-
-# 4 
+# 5 
 test: 
 	${hive_home}/bin/schematool -dbType derby -initSchema

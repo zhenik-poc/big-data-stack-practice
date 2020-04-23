@@ -5,3 +5,4 @@ hadoop*
 apache*
 metastore_db/
 derby.log
+*.crt

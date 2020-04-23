@@ -13,8 +13,8 @@ WORKDIR /opt
 #Install Hive and PostgreSQL JDBC
 RUN apt-get update && apt-get install -y wget procps ca-certificates
 
-COPY  ./*.crt /usr/local/share/ca-certificates/
-RUN update-ca-certificates
+#COPY  ./*.crt /usr/local/share/ca-certificates/
+#RUN update-ca-certificates
 
 RUN wget https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz && \
 	tar -xzvf apache-hive-$HIVE_VERSION-bin.tar.gz && \
@@ -25,7 +25,7 @@ RUN wget https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/apache-hive-$HI
 
 
 # Guava S3 compatible
-# ref https://github.com/IBM/docker-hive/blob/master/Dockerfile 
+# ref https://github.com/IBM/docker-hive/blob/master/Dockerfile
 RUN rm -f $HIVE_HOME/lib/guava-19.0.jar && \
     	cp $HADOOP_HOME/share/hadoop/common/lib/guava-27.0-jre.jar $HIVE_HOME/lib/
 
@@ -52,9 +52,9 @@ RUN chmod +x /usr/local/bin/startup.sh
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-RUN curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/${AWS_VERSION}/aws-java-sdk-${AWS_VERSION}.jar \ 
+RUN curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/${AWS_VERSION}/aws-java-sdk-${AWS_VERSION}.jar \
 	-o $HIVE_HOME/lib/aws-java-sdk-${AWS_VERSION}.jar
-RUN curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-core/${AWS_VERSION}/aws-java-sdk-core-${AWS_VERSION}.jar \ 
+RUN curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-core/${AWS_VERSION}/aws-java-sdk-core-${AWS_VERSION}.jar \
 	-o $HIVE_HOME/lib/aws-java-sdk-core-${AWS_VERSION}.jar
 RUN curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-s3/${AWS_VERSION}/aws-java-sdk-s3-${AWS_VERSION}.jar \
 	-o $HIVE_HOME/lib/aws-java-sdk-s3-${AWS_VERSION}.jar
@@ -63,12 +63,12 @@ RUN curl -L https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP
 RUN curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-dynamodb/${AWS_VERSION}/aws-java-sdk-dynamodb-${AWS_VERSION}.jar \
 	-o $HIVE_HOME/lib/aws-java-sdk-dynamodb-${AWS_VERSION}.jar
 
-# 	curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-emr/${AWS_VERSION}/aws-java-sdk-emr-${AWS_VERSION} -o $HIVE_HOME/lib/aws-java-sdk-emr-${AWS_VERSION} 
+# 	curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-emr/${AWS_VERSION}/aws-java-sdk-emr-${AWS_VERSION} -o $HIVE_HOME/lib/aws-java-sdk-emr-${AWS_VERSION}
 # RUN curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/${AWS_VERSION}/aws-java-sdk-${AWS_VERSION}.jar -o $HADOOP_HOME/lib/aws-java-sdk-${AWS_VERSION}.jar && \
 #     curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-core/${AWS_VERSION}/aws-java-sdk-core-${AWS_VERSION}.jar -o $HADOOP_HOME/lib/aws-java-sdk-core-${AWS_VERSION}.jar&& \
 #     curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-s3/${AWS_VERSION}/aws-java-sdk-s3-${AWS_VERSION}.jar -o $HADOOP_HOME/lib/aws-java-sdk-s3-${AWS_VERSION}.jar && \
 #     curl -L https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_VERSION}/hadoop-aws-${HADOOP_VERSION}.jar -o $HADOOP_HOME/lib//hadoop-aws-${HADOOP_VERSION}.jar && \
-# 	curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-emr/${AWS_VERSION}/aws-java-sdk-emr-${AWS_VERSION} -o $HADOOP_HOME/lib/aws-java-sdk-emr-${AWS_VERSION} 
+# 	curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-emr/${AWS_VERSION}/aws-java-sdk-emr-${AWS_VERSION} -o $HADOOP_HOME/lib/aws-java-sdk-emr-${AWS_VERSION}
 
 
 EXPOSE 10000

@@ -7,10 +7,23 @@ services:
     #   && hive --service metastore"
     command: schematool -dbType postgres -initSchema --verbose
     build:
-      context: hive-metastore
+      context: hive
       dockerfile: Dockerfile
     env_file:
-      - ./hive-metastore/hive.env
+      - ./hive/hive.env
+
+  hive-server:
+    image: metastore
+    # command: >
+    #   bash -c "schematool -dbType postgres -initSchema --verbose
+    #   && hive --service metastore"
+    command: hive start
+    # command: ls /opt/hive/lib
+    build:
+      context: hive
+      dockerfile: Dockerfile
+    env_file:
+      - ./hive/hive.env
 
   metastore:
     image: metastore
@@ -20,11 +33,18 @@ services:
     command: hive --service metastore
     # command: ls /opt/hive/lib
     build:
-      context: hive-metastore
+      context: hive
       dockerfile: Dockerfile
     env_file:
-      - ./hive-metastore/hive.env
-
+      - ./hive/hive.env
+  
+  presto:
+    image: prestosql/presto:332
+    ports: 
+      - 8080:8080
+    volumes: 
+      - "./prestosql/etc:/usr/lib/presto/etc"
+    
   postgres:
     container_name: postgres
     image: postgres:12

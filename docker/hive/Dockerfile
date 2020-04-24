@@ -13,8 +13,8 @@ WORKDIR /opt
 #Install Hive and PostgreSQL JDBC
 RUN apt-get update && apt-get install -y wget procps ca-certificates
 
-#COPY  ./*.crt /usr/local/share/ca-certificates/
-#RUN update-ca-certificates
+COPY  ./*.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
 
 RUN wget https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz && \
 	tar -xzvf apache-hive-$HIVE_VERSION-bin.tar.gz && \

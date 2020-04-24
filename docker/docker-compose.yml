@@ -1,10 +1,7 @@
 version: "3"
 services:
   db-init:
-    image: metastore
-    # command: >
-    #   bash -c "schematool -dbType postgres -initSchema --verbose
-    #   && hive --service metastore"
+    image: hive
     command: schematool -dbType postgres -initSchema --verbose
     build:
       context: hive
@@ -13,20 +10,16 @@ services:
       - ./hive/hive.env
 
   hive-server:
-    image: metastore
-    # command: >
-    #   bash -c "schematool -dbType postgres -initSchema --verbose
-    #   && hive --service metastore"
-    command: hive start
-    # command: ls /opt/hive/lib
+    image: hive
+    command: hive --service hiveserver2
     build:
       context: hive
       dockerfile: Dockerfile
     env_file:
       - ./hive/hive.env
 
-  metastore:
-    image: metastore
+  hive-metastore:
+    image: hive
     # command: >
     #   bash -c "schematool -dbType postgres -initSchema --verbose
     #   && hive --service metastore"
@@ -37,14 +30,6 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./hive/hive.env
-  
-  presto:
-    image: prestosql/presto:332
-    ports: 
-      - 8080:8080
-    volumes: 
-      - "./prestosql/etc:/usr/lib/presto/etc"
-    
   postgres:
     container_name: postgres
     image: postgres:12
@@ -65,6 +50,12 @@ services:
       MINIO_SECRET_KEY: minio123
     command: server /data
 
+  presto:
+    image: prestosql/presto:332
+    ports:
+      - 8080:8080
+    volumes:
+      - "./prestosql/etc:/usr/lib/presto/etc"
 # volumes:
 #   hadoop_namenode:
 #   hadoop_datanode:

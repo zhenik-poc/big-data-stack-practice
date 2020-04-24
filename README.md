@@ -10,7 +10,15 @@ mc config host add my-local-conf http://127.0.0.1:9000 minio minio123
 mc mb my-local-conf/hive
 mc cp myobject.csv my-local-conf/hive/warehouse/myobject.csv
 ```
+## Hive table example
 
+
+
+```bash
+
+docker-compose exec hive-server /opt/hive/bin/beeline -u jdbc:postgresql://hive:hive@postgres:5432/metastore
+create table persons (id string, name string, lastname string) row format delimited fields terminated by ',', lines terminated by "\n" location "s3://hive";
+```
 ## Links
 * [modern-data-lake-with-minio](https://blog.minio.io/modern-data-lake-with-minio-part-2-f24fb5f82424)
 * [presto-modern-interactive-sql-query-engine-for-enterprise](https://blog.minio.io/presto-modern-interactive-sql-query-engine-for-enterprise-ce56d7aea931)

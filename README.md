@@ -23,6 +23,7 @@ create table persons (id string, name string, lastname string) row format delimi
 * [modern-data-lake-with-minio](https://blog.minio.io/modern-data-lake-with-minio-part-2-f24fb5f82424)
 * [presto-modern-interactive-sql-query-engine-for-enterprise](https://blog.minio.io/presto-modern-interactive-sql-query-engine-for-enterprise-ce56d7aea931)
 * [big-data-stack-running-sql-queries](https://johs.me/posts/big-data-stack-running-sql-queries/)
+* [how-to-install-a-beeline-client-to-connect-to-hive-metastore](https://docs.hevodata.com/destinations/miscellaneous/how-to-install-a-beeline-client-to-connect-to-hive-metastore/)
 
 ## Additional links
 * [IBM/docker-hive guave lib update](https://github.com/IBM/docker-hive/blob/master/Dockerfile#L12)

@@ -20,11 +20,7 @@ services:
 
   hive-metastore:
     image: hive
-    # command: >
-    #   bash -c "schematool -dbType postgres -initSchema --verbose
-    #   && hive --service metastore"
     command: hive --service metastore
-    # command: ls /opt/hive/lib
     build:
       context: hive
       dockerfile: Dockerfile

@@ -11,27 +11,30 @@ services:
 
   hive-server:
     image: hive
-    command: hive --service hiveserver2
+    command: hiveserver2
+    build:
+      context: hive
+      dockerfile: Dockerfile
+    environment:
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+      SERVICE_PRECONDITION: "hive-metastore:9083"
+    env_file:
+      - ./hive/hive.env
+
+  hive-metastore:
+    image: hive
+    command: hiveserver2 --service metastore
+    environment:
+      SERVICE_PRECONDITION: "hive-metastore-postgresql:5432"
     build:
       context: hive
       dockerfile: Dockerfile
     env_file:
       - ./hive/hive.env
 
-  hive-metastore:
-    image: hive
-    command: hive --service metastore
-    build:
-      context: hive
-      dockerfile: Dockerfile
-    env_file:
-      - ./hive/hive.env
-  postgres:
+  hive-metastore-postgresql:
     container_name: postgres
     image: postgres:12
-    environment:
-      POSTGRES_USER: postgresuser
-      POSTGRES_PASSWORD: postgrespassword
     volumes:
       - "./init-hive-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh"
     ports:
@@ -52,7 +55,12 @@ services:
       - 8080:8080
     volumes:
       - "./prestosql/etc:/usr/lib/presto/etc"
-# volumes:
-#   hadoop_namenode:
-#   hadoop_datanode:
-#   hadoop_historyserver:
+
+  mc:
+    image: minio/mc:RELEASE.2020-04-25T00-43-23Z
+    restart: on-failure
+    entrypoint: >
+      /bin/sh -c "
+      mc config host add super-puper-config http://minio:9000 minio minio123 && \
+        mc mb super-puper-config/hive && \
+        mc cp myobject.csv super-puper-config/hive/warehouse/users/myobject.csv || exit 1;"

@@ -63,14 +63,6 @@ RUN curl -L https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP
 RUN curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-dynamodb/${AWS_VERSION}/aws-java-sdk-dynamodb-${AWS_VERSION}.jar \
 	-o $HIVE_HOME/lib/aws-java-sdk-dynamodb-${AWS_VERSION}.jar
 
-# 	curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-emr/${AWS_VERSION}/aws-java-sdk-emr-${AWS_VERSION} -o $HIVE_HOME/lib/aws-java-sdk-emr-${AWS_VERSION}
-# RUN curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/${AWS_VERSION}/aws-java-sdk-${AWS_VERSION}.jar -o $HADOOP_HOME/lib/aws-java-sdk-${AWS_VERSION}.jar && \
-#     curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-core/${AWS_VERSION}/aws-java-sdk-core-${AWS_VERSION}.jar -o $HADOOP_HOME/lib/aws-java-sdk-core-${AWS_VERSION}.jar&& \
-#     curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-s3/${AWS_VERSION}/aws-java-sdk-s3-${AWS_VERSION}.jar -o $HADOOP_HOME/lib/aws-java-sdk-s3-${AWS_VERSION}.jar && \
-#     curl -L https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_VERSION}/hadoop-aws-${HADOOP_VERSION}.jar -o $HADOOP_HOME/lib//hadoop-aws-${HADOOP_VERSION}.jar && \
-# 	curl -L https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-emr/${AWS_VERSION}/aws-java-sdk-emr-${AWS_VERSION} -o $HADOOP_HOME/lib/aws-java-sdk-emr-${AWS_VERSION}
-
-
 EXPOSE 10000
 EXPOSE 10002
 EXPOSE 9083

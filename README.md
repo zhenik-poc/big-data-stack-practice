@@ -11,7 +11,7 @@ to stop
 make down
 ```
 
-* Minio [localhost:9000](http://localhost:9000)
+* Minio (minio, minio123) [localhost:9000](http://localhost:9000)
 * Presto (admin, no password) [localhost:8080](http://localhost:8080)
 ## Diagram
 To create tables for test data, I use Option 1 in docker-compose.

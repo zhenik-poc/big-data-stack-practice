@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# init tables for hive metastore
+hive --service schemaTool -initSchema -dbType postgres --verbose | true
+
+# upgrade tables, if versions evolve
+hive --service schemaTool -upgradeSchema -dbType postgres --verbose | true
+
+# run metastore
+hive --service metastore

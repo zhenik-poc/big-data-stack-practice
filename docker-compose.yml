@@ -1,0 +1,62 @@
+version: "3"
+services:
+
+  database:
+    container_name: database
+    image: postgres:12-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: metastore
+      POSTGRES_USER: hive
+      POSTGRES_PASSWORD: hive
+
+  hive-server:
+    container_name: hive-server
+    image: homemade/hive:3.1.0
+    ports:
+      - 10000:10000
+    env_file:
+      - ./hive.env
+    environment:
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+      HIVE_SITE_CONF_hive_metastore_uris: "thrift://hive-metastore:9083"
+      # https://stackoverflow.com/a/53336873
+      HIVE_SITE_CONF_hive_server2_active_passive_ha_enable: "true"
+
+  hive-metastore:
+    container_name: hive-metastore
+    image: homemade/hive:3.1.0
+    ports:
+      - 9083:9083
+    volumes:
+      - "./etc/hivemetastore/create-table.hql:/tmp/create-table.hql"
+    env_file:
+      - ./hive.env
+    command: hivemetastore
+
+  minio:
+    container_name: minio
+    image: minio/minio:RELEASE.2020-04-10T03-34-42Z
+    ports:
+      - 9000:9000
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server /data
+
+  presto:
+    container_name: presto
+    image: prestosql/presto:333
+    ports:
+      - 8080:8080
+    volumes:
+      - "./etc/presto/config.properties:/lib/presto/default/etc/config.properties"
+      - "./etc/presto/hive.properties:/lib/presto/default/etc/catalog/hive.properties"
+      - "./etc/presto/query-example.sql:/tmp/query-example.sql"
+
+# important to have external network, without `_` underscore symbol, otherwise hive-server will fail
+networks:
+  default:
+    external:
+      name: hive-test

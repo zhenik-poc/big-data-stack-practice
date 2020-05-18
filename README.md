@@ -1,30 +1,89 @@
-# Hadoop, Hive, Metastore, S3, Postgres
-Practising with big data stack
+# Proof of concept 
+Hive meta-store and S3
 
-## Setup
-
-## Minio required bucket and sub-dir
-
+## How to run 
 ```bash
-mc config host add my-local-conf http://127.0.0.1:9000 minio minio123
-mc mb my-local-conf/hive
-mc cp myobject.csv my-local-conf/hive/warehouse/myobject.csv
+make up
 ```
-## Hive table example
 
-
-
+to stop
 ```bash
-
-docker-compose exec hive-server /opt/hive/bin/beeline -u jdbc:postgresql://hive:hive@postgres:5432/metastore
-create table persons (id string, name string, lastname string) row format delimited fields terminated by ',', lines terminated by "\n" location "s3://hive";
+make down
 ```
-## Links
-* [modern-data-lake-with-minio](https://blog.minio.io/modern-data-lake-with-minio-part-2-f24fb5f82424)
-* [presto-modern-interactive-sql-query-engine-for-enterprise](https://blog.minio.io/presto-modern-interactive-sql-query-engine-for-enterprise-ce56d7aea931)
-* [big-data-stack-running-sql-queries](https://johs.me/posts/big-data-stack-running-sql-queries/)
-* [how-to-install-a-beeline-client-to-connect-to-hive-metastore](https://docs.hevodata.com/destinations/miscellaneous/how-to-install-a-beeline-client-to-connect-to-hive-metastore/)
 
-## Additional links
-* [IBM/docker-hive guave lib update](https://github.com/IBM/docker-hive/blob/master/Dockerfile#L12)
-* [Amazon EMR & additional sdk](https://aws.amazon.com/emr/)
+* Minio [localhost:9000](http://localhost:9000)
+* Presto (admin, no password) [localhost:8080](http://localhost:8080)
+## Diagram
+To create tables for test data, I use Option 1 in docker-compose.
+![img](./doc/diagram.png)
+  
+Hive deployment  
+
+![img](./doc/hive-metastore.png)
+
+
+screen shots
+![img](./doc/presto-query.png)
+
+![img](./doc/presto-ui.png)
+
+## Useful commands (debug)
+### Minio
+```bash
+mc config host add super-puper-config http://localhost:9000 minio minio123
+mc mb super-puper-config/hive
+mc mb super-puper-config/default
+mc cp ./dummy-data/iris.csv super-puper-config/hive/warehouse/iris/iris.csv
+mc cp ./dummy-data/users.csv super-puper-config/hive/warehouse/users/users.csv
+```
+
+### Beeline cli
+Different ways how to connect
+```bash
+# from metastore (loopback) 
+beeline -u jdbc:hive2://
+    
+# from hive-server (to metastore)
+beeline -u "jdbc:hive2://localhost:10000/default;auth=noSasl" -n hive -p hive  
+
+# exec script from file (example)
+beeline -u jdbc:hive2:// -f /tmp/create-table.hql
+```
+SQL
+```
+SHOW DATABASES;
+SHOW TABLES IN <database-name>;
+DROP DATABASE <database-name>;
+```
+Dummy data. table creation on S3 for iris data set (check /dummy-data/iris.csv)
+```sql
+CREATE EXTERNAL TABLE iris (sepal_length DECIMAL, sepal_width DECIMAL, 
+petal_length DECIMAL, petal_width DECIMAL, species STRING) 
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+LOCATION 's3a://hive/warehouse/iris/'
+TBLPROPERTIES ("skip.header.line.count"="1");
+```
+
+Dummy data. table creation on S3 for iris data set (check /dummy-data/users.csv)
+```sql
+CREATE EXTERNAL TABLE users (id DECIMAL, name STRING, 
+lastname STRING) 
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+LOCATION 's3a://hive/warehouse/users/';
+```
+
+### Presto 
+```bash
+SHOW CATALOGS [ LIKE pattern ]
+SHOW SCHEMAS [ FROM catalog ] [ LIKE pattern ]
+SHOW TABLES [ FROM schema ] [ LIKE pattern ]
+```
+
+Presto does not have proper support for CSV files currently:
+* https://stackoverflow.com/a/56662729 
+* https://coding-stream-of-consciousness.com/2019/06/05/presto-hive-external-table-textfile-limitations/ 
+* https://github.com/prestosql/presto/pull/920#issuecomment-517585649 
